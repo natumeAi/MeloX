@@ -15,6 +15,8 @@ struct AlbumDetailContent: View {
     let onRefresh: () async -> Void
 
     var body: some View {
+        let filteredTracks = self.filteredTracks
+
         ZStack {
             MusicCollectionArtworkBackdrop(
                 blurredArtworkImage: blurredBackdropImage,
@@ -51,6 +53,11 @@ struct AlbumDetailContent: View {
             .refreshable {
                 await onRefresh()
             }
+            .musicCollectionNowPlayingLocator(
+                trackIDs: filteredTracks.map(\.id),
+                isEnabled: !isLoading && failureMessage == nil
+                    && downloadCoordinator?.isSelecting != true
+            )
         }
         .foregroundStyle(.primary)
     }

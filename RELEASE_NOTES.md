@@ -9,6 +9,7 @@
 - 增加了从自建歌单移除歌曲的功能
 - 增加了自建歌单删除功能，支持删除前确认
 - 增加了新建公开与私密歌单，支持在添加歌曲时直接创建歌单
+- 增加了歌单与专辑页的定位按钮，可快速跳转到正在播放的歌曲
 - 修复了手动切歌后新歌曲沿用上一首播放进度的问题
 - 修复了使用蜂窝网络时无法修改无线网络播放音质的问题
 - 修复了音乐库顶部的分类切换栏消失的问题
@@ -21,6 +22,7 @@
 - 优化了搜索分类切换，返回已查看的分类时更快
 - 优化了跳转、暂停与重播时的播放进度显示
 - 优化了 iPad 播放器，采用桌面端样式的双栏布局与常驻播放控制
+- 优化了歌单与专辑的曲目列表，歌单显示歌曲封面与歌手，专辑显示歌手
 
 ### English
 
@@ -29,6 +31,7 @@
 - Added the ability to remove songs from your own playlists
 - Added deletion of your own playlists with confirmation
 - Added public and private playlist creation, including creating a playlist while adding a song
+- Added a button on playlist and album pages to jump to the song that is currently playing
 - Fixed manually skipped songs starting from the previous song's playback position
 - Fixed the Wi-Fi playback quality setting not changing while on cellular data
 - Fixed the category bar missing from the top of the Library
@@ -41,6 +44,7 @@
 - Improved search category switching so previously viewed results appear faster
 - Improved progress display when seeking, pausing, and replaying songs
 - Improved the iPad player with a desktop-style two-column layout and persistent playback controls
+- Improved playlist and album track lists: playlists now show artwork and artists, and albums show artists
 
 ## macOS
 

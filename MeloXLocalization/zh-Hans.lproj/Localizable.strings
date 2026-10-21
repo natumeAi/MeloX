@@ -1228,6 +1228,7 @@
 "ui.song.loading" = "正在载入歌曲";
 "ui.song.information_unavailable" = "歌曲资料不可用";
 "ui.player.now_playing" = "正在播放";
+"ui.player.locate_now_playing" = "定位到正在播放";
 "ui.player.shuffle" = "随机播放";
 "ui.comments.title" = "评论";
 "ui.comments.view" = "查看评论";

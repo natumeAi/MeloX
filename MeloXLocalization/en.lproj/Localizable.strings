@@ -1228,6 +1228,7 @@
 "ui.song.loading" = "Loading Song";
 "ui.song.information_unavailable" = "Song Information Unavailable";
 "ui.player.now_playing" = "Now Playing";
+"ui.player.locate_now_playing" = "Scroll to Now Playing";
 "ui.player.shuffle" = "Shuffle";
 "ui.comments.title" = "Comments";
 "ui.comments.view" = "View Comments";

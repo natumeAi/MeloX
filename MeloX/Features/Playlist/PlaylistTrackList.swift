@@ -15,28 +15,31 @@ struct PlaylistTrackList: View {
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(Array(tracks.enumerated()), id: \.element.id) { index, song in
-                    PlaylistTrackRow(
-                        song: song,
-                        tracks: tracks,
-                        sourceID: sourceID,
-                        index: index,
-                        showsArtwork: showsArtwork,
-                        downloadSelection: downloadSelection,
-                        onRemoveSong: onRemoveSong
-                    )
+                    VStack(spacing: 0) {
+                        PlaylistTrackRow(
+                            song: song,
+                            tracks: tracks,
+                            sourceID: sourceID,
+                            index: index,
+                            showsArtwork: showsArtwork,
+                            downloadSelection: downloadSelection,
+                            onRemoveSong: onRemoveSong
+                        )
 
-                    if song.id != tracks.last?.id {
-                        Divider()
-                            .overlay(Color.primary.opacity(0.12))
-                            .padding(
-                                .leading,
-                                (showsArtwork ? 80 : 66)
-                                    + (isSelectingDownloads ? 36 : 0)
-                            )
-                            .padding(.trailing, 20)
+                        if song.id != tracks.last?.id {
+                            Divider()
+                                .overlay(Color.primary.opacity(0.12))
+                                .padding(
+                                    .leading,
+                                    (showsArtwork ? 122 : 66)
+                                        + (isSelectingDownloads ? 36 : 0)
+                                )
+                                .padding(.trailing, 20)
+                        }
                     }
                 }
             }
+            .scrollTargetLayout()
         }
     }
 
@@ -104,9 +107,9 @@ private struct PlaylistTrackRow: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(song.name)
                             .font(.body)
-                            .lineLimit(showsArtwork ? 1 : 2)
+                            .lineLimit(1)
 
-                        if showsArtwork {
+                        if !song.artistText.isEmpty {
                             Text(song.artistText)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -225,7 +228,7 @@ private struct PlaylistTrackRow: View {
         }
         .padding(.leading, 20)
         .padding(.trailing, 8)
-        .padding(.vertical, showsArtwork ? 8 : 11)
+        .padding(.vertical, showsArtwork ? 8 : 10)
         .background(isCurrentSong ? Color.primary.opacity(0.10) : .clear)
         .musicMatchedTransitionSource(for: .song(song))
         .accessibilityElement(children: .contain)
@@ -244,8 +247,18 @@ private struct PlaylistTrackRow: View {
     @ViewBuilder
     private var leadingContent: some View {
         if showsArtwork {
+            trackNumberText
+                .font(.body)
+                .minimumScaleFactor(0.6)
+                .frame(width: 30, alignment: .center)
+
             ArtworkImage(url: song.album?.artworkURL, cornerRadius: 6)
                 .frame(width: 48, height: 48)
+                .overlay {
+                    if isCurrentSong && !isSelectingDownloads {
+                        nowPlayingArtworkOverlay
+                    }
+                }
         } else if isCurrentSong && !isSelectingDownloads {
             ZStack {
                 Circle()
@@ -262,18 +275,40 @@ private struct PlaylistTrackRow: View {
             .frame(width: 32, height: 32)
             .frame(width: 40)
         } else {
-            Text(
-                (index + 1).formatted(
-                    .number.locale(L10n.locale)
-                )
-            )
+            trackNumberText
                 .font(.title3)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-                .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .frame(width: 40, alignment: .center)
         }
+    }
+
+    private var trackNumberText: some View {
+        Text(
+            (index + 1).formatted(
+                .number.locale(L10n.locale)
+            )
+        )
+        .foregroundStyle(.secondary)
+        .monospacedDigit()
+        .lineLimit(1)
+    }
+
+    private var nowPlayingArtworkOverlay: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.black.opacity(0.38))
+
+            if player.isLoading {
+                ProgressView()
+                    .controlSize(.mini)
+                    .tint(.white)
+            } else {
+                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.body.weight(.bold))
+                    .foregroundStyle(.white)
+            }
+        }
+        .accessibilityHidden(true)
     }
 
     private var primaryActionAccessibilityLabel: String {

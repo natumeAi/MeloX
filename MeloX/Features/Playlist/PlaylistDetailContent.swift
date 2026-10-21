@@ -30,6 +30,8 @@ struct PlaylistDetailContent: View {
     }
 
     var body: some View {
+        let filteredTracks = self.filteredTracks
+
         ZStack {
             MusicCollectionArtworkBackdrop(
                 blurredArtworkImage: blurredBackdropImage,
@@ -67,7 +69,7 @@ struct PlaylistDetailContent: View {
                     MusicCollectionTrackContent(
                         tracks: filteredTracks,
                         sourceID: playlist.id,
-                        showsArtwork: usesToplistLayout,
+                        showsArtwork: true,
                         loadingTitle: usesToplistLayout
                             ? L10n.string("ui.toplists.loading")
                             : L10n.string("ui.playlists.loading"),
@@ -89,6 +91,11 @@ struct PlaylistDetailContent: View {
             .refreshable {
                 await onRefresh()
             }
+            .musicCollectionNowPlayingLocator(
+                trackIDs: filteredTracks.map(\.id),
+                isEnabled: !isLoading && failureMessage == nil
+                    && downloadCoordinator?.isSelecting != true
+            )
             .ignoresSafeArea(
                 .container,
                 edges: usesToplistLayout ? .top : []
