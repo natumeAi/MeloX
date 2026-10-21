@@ -271,6 +271,7 @@ The watch app currently supports independent sign-in, search, daily recommendati
 - Notification lyrics
 - Live Activity lyrics
 - Dynamic Island lyrics
+- Dynamic Island Now Playing card (tap to open the player)
 
 - Native iPhone interface
 - Native iPad interface

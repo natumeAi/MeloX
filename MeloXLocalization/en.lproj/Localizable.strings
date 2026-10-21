@@ -321,7 +321,7 @@
 "ui.settings.catalog.system_lyrics.section" = "System & Extended Lyrics";
 "ui.settings.catalog.system_lyrics.title" = "System Lyrics Display";
 "ui.settings.catalog.system_lyrics.subtitle" = "Now Playing, notification banners, Lock Screen, and Dynamic Island lyrics";
-"ui.settings.catalog.system_lyrics.keywords" = "Control Center|system lyrics|notification lyrics|silent notification|banner|Notification|Live Activity|title format|subtitle|artwork|playback progress";
+"ui.settings.catalog.system_lyrics.keywords" = "Control Center|system lyrics|notification lyrics|silent notification|banner|Notification|Live Activity|Dynamic Island|Now Playing card|title format|subtitle|artwork|playback progress";
 "ui.settings.catalog.skyline.title" = "Full-Screen Skyline Lyrics";
 "ui.settings.catalog.skyline.subtitle" = "Landscape layout, background text, and motion effects";
 "ui.settings.catalog.skyline.keywords" = "landscape|font size|drift|tilt|background lyrics";
@@ -475,6 +475,8 @@
 "ui.settings.live_activity.enabled_experimental" = "Live Activity Lyrics (Experimental)";
 "ui.settings.live_activity.settings" = "Live Activity Display Settings";
 "ui.settings.live_activity.section" = "Live Activity";
+"ui.settings.live_activity.now_playing_card" = "Now Playing Card";
+"ui.settings.live_activity.now_playing_card.footer" = "Shows the song, artist and progress in the Dynamic Island and on the Lock Screen while playing, without lyrics. Tap it to open the player. When Live Activity Lyrics is on, lyrics are shown instead.";
 "ui.settings.live_activity.warning.title" = "Experimental Feature — Still Unstable";
 "ui.settings.live_activity.warning.footer" = "Lyrics may update late, display incorrectly, or be ended early by the system.";
 "ui.settings.live_activity.warning.system_footer" = "Lyrics may update late, display incorrectly, or be ended early by the system. This can be enabled independently from System Now Playing.";
@@ -1331,6 +1333,7 @@
 "ui.player.previous" = "Previous";
 "ui.player.next" = "Next";
 "ui.player.pause" = "Pause";
+"ui.player.paused" = "Paused";
 "ui.player.no_current_song" = "Nothing Is Playing";
 "ui.player.collapse" = "Collapse Player";
 "ui.player.collapse_hint" = "Tap to collapse, or drag the player downward";

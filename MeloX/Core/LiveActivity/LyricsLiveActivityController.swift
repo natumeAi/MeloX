@@ -15,6 +15,7 @@ struct LyricsLiveActivitySnapshot: Equatable {
     let playbackPosition: TimeInterval
     let duration: TimeInterval
     let staleDate: Date?
+    let style: LyricsLiveActivityStyle
 
     func contentState(
         artworkData: Data?
@@ -51,7 +52,8 @@ struct LyricsLiveActivitySnapshot: Equatable {
             isPlaying: isPlaying,
             playbackPosition: safePosition,
             duration: safeDuration,
-            updatedAt: .now
+            updatedAt: .now,
+            style: style
         )
     }
 

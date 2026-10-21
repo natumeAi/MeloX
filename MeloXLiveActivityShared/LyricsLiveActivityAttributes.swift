@@ -1,6 +1,11 @@
 import ActivityKit
 import Foundation
 
+enum LyricsLiveActivityStyle: String, Codable, Hashable {
+    case lyrics
+    case nowPlaying
+}
+
 enum LyricsLiveActivityCompactTextSize:
     String,
     Codable,
@@ -23,6 +28,16 @@ enum LyricsLiveActivityCompactTextSize:
 }
 
 struct LyricsLiveActivityPresentation: Codable, Hashable {
+    static let nowPlayingCard = LyricsLiveActivityPresentation(
+        showsArtwork: true,
+        showsNextLyric: false,
+        showsProgress: true,
+        scrollsCompactText: false,
+        compactTextSize: .standard,
+        scrollSpeed: 0,
+        scrollPause: 0
+    )
+
     let showsArtwork: Bool
     let showsNextLyric: Bool
     let showsProgress: Bool
@@ -48,6 +63,8 @@ struct LyricsLiveActivityAttributes: ActivityAttributes {
         let playbackPosition: TimeInterval
         let duration: TimeInterval
         let updatedAt: Date
+        /// Older activities omit this field and keep the lyrics presentation.
+        let style: LyricsLiveActivityStyle?
 
         var progress: Double {
             guard duration > 0 else { return 0 }

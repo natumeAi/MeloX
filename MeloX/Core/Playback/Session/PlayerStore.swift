@@ -9,6 +9,7 @@ private enum LyricsLiveActivityPublication: Equatable {
 
 private struct LyricsLiveActivityPublicationSignature: Equatable {
     let songID: Int
+    let style: LyricsLiveActivityStyle
     let currentLyricID: LyricLine.ID?
     let nextLyricID: LyricLine.ID?
     let isPlaying: Bool
@@ -222,6 +223,9 @@ final class PlayerStore {
     @ObservationIgnored
     private var publishedLyricsLiveActivity:
         LyricsLiveActivityPublication?
+
+    @ObservationIgnored
+    private var isNowPlayingLiveActivityStarted = false
 
     @ObservationIgnored
     private var listenTogetherSavedPlaybackOptions:
@@ -1151,6 +1155,7 @@ final class PlayerStore {
         seekRevision += 1
         isPlaying = false
         isLoading = false
+        isNowPlayingLiveActivityStarted = false
         updateNowPlayingState()
         persistSnapshot()
     }
@@ -1347,7 +1352,8 @@ final class PlayerStore {
 
     private func updateLyricsLiveActivity(force: Bool = false) {
         guard let song = currentSong,
-              shouldPresentLyricsLiveActivity else {
+              let style = liveActivityStyle else {
+            isNowPlayingLiveActivityStarted = false
             publishLyricsLiveActivity(
                 .inactive,
                 snapshot: nil,
@@ -1355,7 +1361,15 @@ final class PlayerStore {
             )
             return
         }
-        guard settings.lyricsLiveActivityEnabled else {
+        switch style {
+        case .nowPlaying:
+            updateNowPlayingLiveActivity(for: song, force: force)
+            return
+        case .lyrics:
+            isNowPlayingLiveActivityStarted = false
+        }
+
+        guard shouldPresentLyricsLiveActivity else {
             publishLyricsLiveActivity(
                 .inactive,
                 snapshot: nil,
@@ -1405,6 +1419,7 @@ final class PlayerStore {
             )
         let signature = LyricsLiveActivityPublicationSignature(
             songID: song.id,
+            style: .lyrics,
             currentLyricID: currentLyric?.id,
             nextLyricID: preferences.showsNextLyric
                 ? nextLyric?.id
@@ -1433,7 +1448,61 @@ final class PlayerStore {
             isPlaying: isPlaying,
             playbackPosition: estimatedProgress(),
             duration: duration,
-            staleDate: nil
+            staleDate: nil,
+            style: .lyrics
+        )
+        publishLyricsLiveActivity(
+            .content(signature),
+            snapshot: snapshot,
+            force: force
+        )
+    }
+
+    private func updateNowPlayingLiveActivity(
+        for song: Song,
+        force: Bool
+    ) {
+        if shouldPresentLyricsLiveActivity {
+            isNowPlayingLiveActivityStarted = true
+        }
+        guard isNowPlayingLiveActivityStarted else {
+            publishLyricsLiveActivity(
+                .inactive,
+                snapshot: nil,
+                force: force
+            )
+            return
+        }
+
+        let artworkURL = song.album?.artworkURL
+        let signature = LyricsLiveActivityPublicationSignature(
+            songID: song.id,
+            style: .nowPlaying,
+            currentLyricID: nil,
+            nextLyricID: nil,
+            isPlaying: isPlaying,
+            title: song.name,
+            subtitle: song.artistText,
+            compactText: song.name,
+            compactScrollDistancePoints: 0,
+            artworkURL: artworkURL,
+            preferences: LyricsLiveActivityPreferences(settings: settings),
+            durationMilliseconds: Int((duration * 1_000).rounded())
+        )
+        let snapshot = LyricsLiveActivitySnapshot(
+            songID: song.id,
+            title: song.name,
+            subtitle: song.artistText,
+            compactText: song.name,
+            compactScrollDistance: 0,
+            nextLyric: nil,
+            artworkURL: artworkURL,
+            presentation: .nowPlayingCard,
+            isPlaying: isPlaying,
+            playbackPosition: estimatedProgress(),
+            duration: duration,
+            staleDate: nil,
+            style: .nowPlaying
         )
         publishLyricsLiveActivity(
             .content(signature),
@@ -1467,6 +1536,12 @@ final class PlayerStore {
 
     private var shouldPresentLyricsLiveActivity: Bool {
         isPlaying || (isLoading && currentLoadShouldAutoplay)
+    }
+
+    private var liveActivityStyle: LyricsLiveActivityStyle? {
+        if settings.lyricsLiveActivityEnabled { return .lyrics }
+        if settings.nowPlayingLiveActivityEnabled { return .nowPlaying }
+        return nil
     }
 
     private func publishLyricsLiveActivity(

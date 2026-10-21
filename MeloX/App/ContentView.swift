@@ -11,6 +11,11 @@ private enum ContentRoute: Hashable {
     case songRecognition
 }
 
+private enum LiveActivityPlayerSheet: Hashable {
+    case settings
+    case share
+}
+
 private struct HeartModeLaunchReadiness: Equatable {
     let hasRestoredPlayback: Bool
     let isLoggedIn: Bool
@@ -39,6 +44,9 @@ struct ContentView: View {
     @State private var pendingMusicRoute: MusicRoute?
     @State private var isTabViewBottomAccessorySuppressed = false
     @State private var hasRestoredPlayback = false
+    @State private var isLiveActivityPlayerOpenPending = false
+    @State private var liveActivityPlayerSheetDismissals =
+        Set<LiveActivityPlayerSheet>()
     @State private var hasHandledHeartModeLaunch = false
     @State private var heartModeLaunchErrorMessage: String?
     @Namespace private var playerTransitionNamespace
@@ -110,10 +118,20 @@ struct ContentView: View {
                         )
                 }
             }
-            .sheet(item: $neteaseSharePresentation) { presentation in
+            .sheet(
+                item: $neteaseSharePresentation,
+                onDismiss: {
+                    finishLiveActivityPlayerSheetDismissal(.share)
+                }
+            ) { presentation in
                 NeteaseShareSheet(presentation: presentation)
             }
-            .sheet(item: $presentedSheet) { destination in
+            .sheet(
+                item: $presentedSheet,
+                onDismiss: {
+                    finishLiveActivityPlayerSheetDismissal(.settings)
+                }
+            ) { destination in
                 switch destination {
                 case .settings:
                     NavigationStack {
@@ -131,6 +149,16 @@ struct ContentView: View {
                 await player.restore()
                 guard !Task.isCancelled else { return }
                 hasRestoredPlayback = true
+            }
+            .onOpenURL { url in
+                guard LyricsLiveActivityDeepLink.isNowPlaying(url) else {
+                    return
+                }
+                isLiveActivityPlayerOpenPending = true
+                openPendingLiveActivityPlayer()
+            }
+            .onChange(of: hasRestoredPlayback) {
+                openPendingLiveActivityPlayer()
             }
             .task(
                 id: HeartModeLaunchReadiness(
@@ -522,6 +550,40 @@ struct ContentView: View {
     private var initialNowPlayingPage: NowPlayingPage {
         guard settings.rememberNowPlayingPage else { return .artwork }
         return NowPlayingPage(rawValue: settings.rememberedNowPlayingPage) ?? .artwork
+    }
+
+    private func openPendingLiveActivityPlayer() {
+        guard isLiveActivityPlayerOpenPending,
+              hasRestoredPlayback,
+              liveActivityPlayerSheetDismissals.isEmpty else {
+            return
+        }
+        guard player.currentSong != nil,
+              playerPresentation == nil else {
+            isLiveActivityPlayerOpenPending = false
+            return
+        }
+
+        if presentedSheet != nil {
+            liveActivityPlayerSheetDismissals.insert(.settings)
+            presentedSheet = nil
+        }
+        if neteaseSharePresentation != nil {
+            liveActivityPlayerSheetDismissals.insert(.share)
+            neteaseSharePresentation = nil
+        }
+        // A cleared sheet binding can still be animating its dismissal.
+        guard liveActivityPlayerSheetDismissals.isEmpty else { return }
+
+        isLiveActivityPlayerOpenPending = false
+        playerPresentation = .nowPlaying
+    }
+
+    private func finishLiveActivityPlayerSheetDismissal(
+        _ sheet: LiveActivityPlayerSheet
+    ) {
+        liveActivityPlayerSheetDismissals.remove(sheet)
+        openPendingLiveActivityPlayer()
     }
 
     private func openMusicRoute(_ route: MusicRoute) {

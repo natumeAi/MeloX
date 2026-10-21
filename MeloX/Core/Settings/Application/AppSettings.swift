@@ -25,6 +25,7 @@ final class AppSettings {
             L10n.string("ui.lyrics.format.token.artist")
         )
     }
+    static let defaultNowPlayingLiveActivityEnabled = false
     static let defaultLyricsLiveActivityEnabled = false
     static var defaultLyricsLiveActivityTitleFormat: String {
         L10n.string("ui.lyrics.format.token.lyrics")
@@ -122,6 +123,8 @@ final class AppSettings {
             "systemNowPlayingLyricsTitleFormat"
         static let systemNowPlayingLyricsSubtitleFormat =
             "systemNowPlayingLyricsSubtitleFormat"
+        static let nowPlayingLiveActivityEnabled =
+            "nowPlayingLiveActivityEnabled"
         static let lyricsLiveActivityEnabled =
             "lyricsLiveActivityEnabled"
         static let lyricsLiveActivityTitleFormat =
@@ -320,6 +323,15 @@ final class AppSettings {
             defaults.set(
                 systemNowPlayingLyricsSubtitleFormat,
                 forKey: Key.systemNowPlayingLyricsSubtitleFormat
+            )
+        }
+    }
+
+    var nowPlayingLiveActivityEnabled: Bool {
+        didSet {
+            defaults.set(
+                nowPlayingLiveActivityEnabled,
+                forKey: Key.nowPlayingLiveActivityEnabled
             )
         }
     }
@@ -1328,6 +1340,9 @@ final class AppSettings {
         )
             ?? defaults.string(forKey: "dynamicIslandLyricsSubtitleFormat")
             ?? Self.defaultSystemNowPlayingLyricsSubtitleFormat
+        nowPlayingLiveActivityEnabled = defaults.object(
+            forKey: Key.nowPlayingLiveActivityEnabled
+        ) as? Bool ?? Self.defaultNowPlayingLiveActivityEnabled
         lyricsLiveActivityEnabled = defaults.object(
             forKey: Key.lyricsLiveActivityEnabled
         ) as? Bool ?? Self.defaultLyricsLiveActivityEnabled
@@ -1950,6 +1965,8 @@ final class AppSettings {
             Self.defaultSystemNowPlayingLyricsTitleFormat
         systemNowPlayingLyricsSubtitleFormat =
             Self.defaultSystemNowPlayingLyricsSubtitleFormat
+        nowPlayingLiveActivityEnabled =
+            Self.defaultNowPlayingLiveActivityEnabled
         lyricsLiveActivityEnabled =
             Self.defaultLyricsLiveActivityEnabled
         lyricsLiveActivityTitleFormat =

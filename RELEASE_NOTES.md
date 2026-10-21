@@ -4,13 +4,13 @@
 
 ### 简体中文
 
-- 修复了音乐库顶部分类栏过长时显示不全、无法切换到下载与历史的问题
-- 优化了音乐库分类名称，将“已关注歌手”简化为“歌手”
+- 增加了可单独开启的灵动岛播放卡片，不显示歌词，点击即可进入播放页
+- 修复了点击灵动岛或锁屏上的 MeloX 卡片后没有进入播放页的问题
 
 ### English
 
-- Fixed the Library category bar being cut off, which made Downloads and History unreachable
-- Improved Library category names by shortening “Followed Artists” to “Artists”
+- Added an optional Now Playing card for the Dynamic Island and Lock Screen that shows no lyrics and opens the player when tapped
+- Fixed tapping MeloX's Dynamic Island or Lock Screen card not opening the player
 
 ## macOS
 

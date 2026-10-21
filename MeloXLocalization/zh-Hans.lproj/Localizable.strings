@@ -321,7 +321,7 @@
 "ui.settings.catalog.system_lyrics.section" = "系统与扩展歌词";
 "ui.settings.catalog.system_lyrics.title" = "系统歌词显示";
 "ui.settings.catalog.system_lyrics.subtitle" = "播放信息、通知横幅、锁定屏幕与灵动岛歌词";
-"ui.settings.catalog.system_lyrics.keywords" = "控制中心|系统歌词|通知歌词|静音通知|横幅|Notification|Live Activity|标题格式|副标题|封面|播放进度";
+"ui.settings.catalog.system_lyrics.keywords" = "控制中心|系统歌词|通知歌词|静音通知|横幅|Notification|Live Activity|灵动岛|播放卡片|标题格式|副标题|封面|播放进度";
 "ui.settings.catalog.skyline.title" = "全屏天际歌词";
 "ui.settings.catalog.skyline.subtitle" = "横屏布局、背景文字与动态效果";
 "ui.settings.catalog.skyline.keywords" = "横屏|字号|漂移|倾斜|背景歌词";
@@ -475,6 +475,8 @@
 "ui.settings.live_activity.enabled_experimental" = "实时活动歌词（实验性）";
 "ui.settings.live_activity.settings" = "实时活动显示设置";
 "ui.settings.live_activity.section" = "实时活动";
+"ui.settings.live_activity.now_playing_card" = "灵动岛播放卡片";
+"ui.settings.live_activity.now_playing_card.footer" = "播放时在灵动岛和锁屏显示歌名、歌手与进度，不显示歌词，点击即可进入播放页。同时开启实时活动歌词时显示歌词。";
 "ui.settings.live_activity.warning.title" = "实验性功能，当前版本仍不稳定";
 "ui.settings.live_activity.warning.footer" = "可能出现歌词更新延迟、显示异常，或被系统提前结束。";
 "ui.settings.live_activity.warning.system_footer" = "可能出现歌词更新延迟、显示异常，或被系统提前结束；它与系统播放信息可以独立开启。";
@@ -1331,6 +1333,7 @@
 "ui.player.previous" = "上一首";
 "ui.player.next" = "下一首";
 "ui.player.pause" = "暂停";
+"ui.player.paused" = "已暂停";
 "ui.player.no_current_song" = "没有正在播放的歌曲";
 "ui.player.collapse" = "收起播放器";
 "ui.player.collapse_hint" = "轻点收起，或向下拖动播放器";

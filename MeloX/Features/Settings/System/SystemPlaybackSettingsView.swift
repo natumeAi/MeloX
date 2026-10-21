@@ -82,6 +82,11 @@ struct SystemPlaybackSettingsView: View {
 
             Section {
                 Toggle(
+                    "ui.settings.live_activity.now_playing_card",
+                    isOn: $settings.nowPlayingLiveActivityEnabled
+                )
+
+                Toggle(
                     "ui.settings.live_activity.enabled_experimental",
                     isOn: $settings.lyricsLiveActivityEnabled
                 )
@@ -100,6 +105,8 @@ struct SystemPlaybackSettingsView: View {
                 Text("ui.settings.live_activity.section")
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
+                    Text("ui.settings.live_activity.now_playing_card.footer")
+
                     Label(
                         "ui.settings.live_activity.warning.title",
                         systemImage: "exclamationmark.triangle.fill"
@@ -130,6 +137,9 @@ struct SystemPlaybackSettingsView: View {
         }
         .onChange(of: settings.systemNowPlayingLyricsSubtitleFormat) {
             player.applySystemNowPlayingLyricsPreference()
+        }
+        .onChange(of: settings.nowPlayingLiveActivityEnabled) {
+            player.applyLyricsLiveActivityPreference()
         }
         .onChange(of: settings.lyricsLiveActivityEnabled) {
             player.applyLyricsLiveActivityPreference()

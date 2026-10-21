@@ -10,6 +10,7 @@ struct LyricsLiveActivityWidget: Widget {
             lockScreenContent(context.state)
                 .activityBackgroundTint(.black.opacity(0.92))
                 .activitySystemActionForegroundColor(.white)
+                .widgetURL(LyricsLiveActivityDeepLink.nowPlayingURL)
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
@@ -33,13 +34,33 @@ struct LyricsLiveActivityWidget: Widget {
                     expandedContent(context.state)
                 }
             } compactLeading: {
-                compactLeadingContent(context.state)
+                if context.state.style == .nowPlaying {
+                    artwork(context.state, size: 19)
+                } else {
+                    compactLeadingContent(context.state)
+                }
             } compactTrailing: {
-                compactTrailingContent(context.state)
+                if context.state.style == .nowPlaying {
+                    Image(
+                        systemName: context.state.isPlaying
+                            ? "waveform"
+                            : "pause.fill"
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel(
+                        context.state.isPlaying
+                            ? Text("ui.player.now_playing")
+                            : Text("ui.player.paused")
+                    )
+                } else {
+                    compactTrailingContent(context.state)
+                }
             } minimal: {
                 artwork(context.state, size: 24)
             }
             .keylineTint(.red)
+            .widgetURL(LyricsLiveActivityDeepLink.nowPlayingURL)
         }
     }
 
