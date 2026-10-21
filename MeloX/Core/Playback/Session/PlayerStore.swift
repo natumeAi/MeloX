@@ -546,7 +546,19 @@ final class PlayerStore {
     }
 
     func selectPlaybackQuality(_ quality: MusicQuality) {
-        let currentQuality = api.isCellularData
+        selectPlaybackQuality(
+            quality,
+            forCellularData: api.isCellularData
+        )
+    }
+
+    /// Settings edit the Wi-Fi and cellular preferences independently of the
+    /// network in use; only a change to the active one reloads the song.
+    func selectPlaybackQuality(
+        _ quality: MusicQuality,
+        forCellularData isCellularData: Bool
+    ) {
+        let currentQuality = isCellularData
             ? settings.cellularQuality
             : settings.quality
         guard currentQuality != quality else { return }
@@ -555,12 +567,13 @@ final class PlayerStore {
         let resumePosition = engine.currentPlaybackTime
             ?? estimatedProgress()
         let songID = currentSong?.id
-        if api.isCellularData {
+        if isCellularData {
             settings.cellularQuality = quality
         } else {
             settings.quality = quality
         }
-        guard let songID else { return }
+        guard isCellularData == api.isCellularData,
+              let songID else { return }
         seekRevision += 1
         let qualityChangeRevision = seekRevision
         Task { @MainActor [weak self] in

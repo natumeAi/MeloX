@@ -9,7 +9,10 @@ struct PlaybackSettingsView: View {
 
         Form {
             Section {
-                Picker("ui.settings.playback.wifi_quality", selection: qualityBinding) {
+                Picker(
+                    "ui.settings.playback.wifi_quality",
+                    selection: qualityBinding(forCellularData: false)
+                ) {
                     ForEach(MusicQuality.allCases) { quality in
                         Text(quality.title).tag(quality)
                     }
@@ -17,7 +20,7 @@ struct PlaybackSettingsView: View {
 
                 Picker(
                     "ui.settings.playback.cellular_quality",
-                    selection: $settings.cellularQuality
+                    selection: qualityBinding(forCellularData: true)
                 ) {
                     ForEach(MusicQuality.allCases) { quality in
                         Text(quality.title).tag(quality)
@@ -103,10 +106,21 @@ struct PlaybackSettingsView: View {
         }
     }
 
-    private var qualityBinding: Binding<MusicQuality> {
+    private func qualityBinding(
+        forCellularData isCellularData: Bool
+    ) -> Binding<MusicQuality> {
         Binding(
-            get: { settings.quality },
-            set: { player.selectPlaybackQuality($0) }
+            get: {
+                isCellularData
+                    ? settings.cellularQuality
+                    : settings.quality
+            },
+            set: {
+                player.selectPlaybackQuality(
+                    $0,
+                    forCellularData: isCellularData
+                )
+            }
         )
     }
 }
