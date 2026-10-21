@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(LibraryStore.self) private var library
     @Environment(AppSettings.self) private var settings
 
@@ -31,17 +30,8 @@ struct LibraryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !showsNavigationTitle, fixedPage == nil, availablePages.count > 1 {
-                Group {
-                    if availablePages.count > 4, horizontalSizeClass == .compact {
-                        pagePicker.pickerStyle(.menu)
-                    } else {
-                        pagePicker.pickerStyle(.segmented)
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(.background)
+            if fixedPage == nil, availablePages.count > 1 {
+                pageBar
             }
 
             if availablePages.isEmpty {
@@ -71,13 +61,6 @@ struct LibraryView: View {
             prompt: searchPrompt,
             isEnabled: canSearchCurrentPage
         )
-        .toolbar {
-            if showsNavigationTitle, fixedPage == nil, availablePages.count > 1 {
-                ToolbarTitleMenu {
-                    pagePicker.pickerStyle(.inline)
-                }
-            }
-        }
         .onAppear {
             guard !hasAppliedInitialPage else { return }
             hasAppliedInitialPage = true
@@ -129,12 +112,31 @@ struct LibraryView: View {
         }
     }
 
+    /// Keeps every category one tap away; the bar scrolls only when the
+    /// titles no longer fit side by side.
+    private var pageBar: some View {
+        ViewThatFits(in: .horizontal) {
+            pagePicker
+                .padding(.horizontal, 16)
+
+            ScrollView(.horizontal) {
+                pagePicker
+                    .fixedSize()
+                    .padding(.horizontal, 16)
+            }
+            .scrollIndicators(.hidden)
+        }
+        .padding(.vertical, 8)
+        .background(.background)
+    }
+
     private var pagePicker: some View {
         Picker("ui.library.category_picker", selection: $section) {
             ForEach(availablePages) { item in
                 Text(item.title).tag(item)
             }
         }
+        .pickerStyle(.segmented)
     }
 
     private var loginUnavailableView: some View {

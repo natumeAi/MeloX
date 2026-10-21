@@ -11,6 +11,7 @@
 - 增加了新建公开与私密歌单，支持在添加歌曲时直接创建歌单
 - 修复了手动切歌后新歌曲沿用上一首播放进度的问题
 - 修复了使用蜂窝网络时无法修改无线网络播放音质的问题
+- 修复了音乐库顶部的分类切换栏消失的问题
 - 修复了 Apple Music 歌词快速换句时滚动跟不上播放进度的问题
 - 修复了 iPad 全屏歌词边缘露出播放器背景、退出按钮被状态栏遮挡的问题
 - 修复了歌词跳转后与歌曲播放不同步的问题
@@ -30,6 +31,7 @@
 - Added public and private playlist creation, including creating a playlist while adding a song
 - Fixed manually skipped songs starting from the previous song's playback position
 - Fixed the Wi-Fi playback quality setting not changing while on cellular data
+- Fixed the category bar missing from the top of the Library
 - Fixed Apple Music lyrics falling behind playback during rapid line changes
 - Fixed the player background showing around iPad full-screen lyrics and the exit button overlapping the status bar
 - Fixed lyrics falling out of sync with playback after seeking
