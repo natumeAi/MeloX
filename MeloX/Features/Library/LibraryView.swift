@@ -112,19 +112,19 @@ struct LibraryView: View {
         }
     }
 
-    /// Keeps every category one tap away; the bar scrolls only when the
-    /// titles no longer fit side by side.
+    /// Keeps every category one tap away. The segmented control is used only
+    /// while its equal-width segments fit; it cannot live in a ScrollView
+    /// because UISegmentedControl claims horizontal drags for itself, so the
+    /// overflow layout switches to scrollable capsules instead.
     private var pageBar: some View {
         ViewThatFits(in: .horizontal) {
             pagePicker
                 .padding(.horizontal, 16)
 
-            ScrollView(.horizontal) {
-                pagePicker
-                    .fixedSize()
-                    .padding(.horizontal, 16)
-            }
-            .scrollIndicators(.hidden)
+            LibraryPageCapsuleBar(
+                pages: availablePages,
+                selection: $section
+            )
         }
         .padding(.vertical, 8)
         .background(.background)
@@ -212,6 +212,50 @@ struct LibraryView: View {
             L10n.string("ui.library.search.cloud")
         case .history:
             L10n.string("ui.library.search.history")
+        }
+    }
+}
+
+/// Matches the Explore category chips (`ExploreCategoryPicker`) and keeps the
+/// selected page scrolled into view when the selection changes.
+private struct LibraryPageCapsuleBar: View {
+    @Environment(\.accessibilityReduceMotion) private var accessibilityReduceMotion
+
+    let pages: [LibraryPage]
+    @Binding var selection: LibraryPage
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal) {
+                HStack(spacing: 8) {
+                    ForEach(pages) { page in
+                        let isSelected = page == selection
+
+                        Button(page.title) {
+                            selection = page
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
+                        .controlSize(.small)
+                        .tint(isSelected ? .accentColor : Color.secondary.opacity(0.14))
+                        .foregroundStyle(isSelected ? .white : .primary)
+                        .accessibilityAddTraits(isSelected ? .isSelected : [])
+                        .id(page)
+                    }
+                }
+            }
+            .contentMargins(.horizontal, 16, for: .scrollContent)
+            .scrollIndicators(.hidden)
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("ui.library.category_picker")
+            .onAppear {
+                proxy.scrollTo(selection, anchor: .center)
+            }
+            .onChange(of: selection) { _, page in
+                withAnimation(accessibilityReduceMotion ? nil : .easeOut(duration: 0.25)) {
+                    proxy.scrollTo(page, anchor: .center)
+                }
+            }
         }
     }
 }
