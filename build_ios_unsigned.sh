@@ -9,7 +9,7 @@ SCHEME="MeloX"
 APP_NAME="MeloX"
 DERIVED_DATA="$BUILD/DerivedData-iOS"
 STAGING="$BUILD/IPA"
-IPA_PATH="$BUILD/MeloX-iOS-unsigned.ipa"
+IPA_BASENAME="MeloX-iOS-unsigned"
 RELEASE_NOTES_PATH="$BUILD/ReleaseNotes.json"
 RELEASE_NOTES_MARKDOWN_PATH="$BUILD/ReleaseNotes.md"
 TEMPORARY_PROJECT=""
@@ -27,7 +27,7 @@ cleanup_temporary_build_inputs() {
 trap cleanup_temporary_build_inputs EXIT INT TERM
 
 rm -rf "$DERIVED_DATA" "$STAGING"
-rm -f "$IPA_PATH" "$RELEASE_NOTES_PATH" "$RELEASE_NOTES_MARKDOWN_PATH"
+rm -f "$BUILD/$IPA_BASENAME"*.ipa "$RELEASE_NOTES_PATH" "$RELEASE_NOTES_MARKDOWN_PATH"
 mkdir -p "$BUILD"
 
 case "$BUILD_VARIANT" in
@@ -146,6 +146,18 @@ fi
 
 ditto --norsrc "$APP_PATH/ReleaseNotes.json" "$RELEASE_NOTES_PATH"
 ditto --norsrc "$APP_PATH/ReleaseNotes.md" "$RELEASE_NOTES_MARKDOWN_PATH"
+
+# The bundled release metadata carries the version decoded from the build
+# number, the same value the release job checks against the tag.
+APP_RELEASE_VERSION="$(
+  python3 -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' \
+    "$RELEASE_NOTES_PATH"
+)"
+if [[ ! "$APP_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Invalid app release version / App 版本号无效：$APP_RELEASE_VERSION"
+  exit 1
+fi
+IPA_PATH="$BUILD/$IPA_BASENAME-$APP_RELEASE_VERSION.ipa"
 
 echo "========== Create unsigned IPA / 生成未签名 IPA =========="
 

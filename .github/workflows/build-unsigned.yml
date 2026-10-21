@@ -140,7 +140,7 @@ jobs:
           case "${PLATFORM}" in
             ios)
               echo "build_script=build_ios_unsigned.sh" >> "${GITHUB_OUTPUT}"
-              echo "asset_path=build/MeloX-iOS-unsigned.ipa" >> "${GITHUB_OUTPUT}"
+              echo "asset_path=build/MeloX-iOS-unsigned-*.ipa" >> "${GITHUB_OUTPUT}"
               ;;
             macos)
               echo "build_script=build_macos_dmg.sh" >> "${GITHUB_OUTPUT}"
@@ -236,7 +236,7 @@ jobs:
             echo "release_name=MeloX macOS ${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
             echo "make_latest=false" >> "${GITHUB_OUTPUT}"
           else
-            echo "filename=MeloX-iOS-unsigned.ipa" >> "${GITHUB_OUTPUT}"
+            echo "filename=MeloX-iOS-unsigned-*.ipa" >> "${GITHUB_OUTPUT}"
             echo "release_name=MeloX iOS + Apple Watch ${GITHUB_REF_NAME}" >> "${GITHUB_OUTPUT}"
             echo "make_latest=true" >> "${GITHUB_OUTPUT}"
           fi
@@ -352,7 +352,7 @@ jobs:
 
           ### Download
 
-          - \`MeloX-iOS-unsigned.ipa\`: unsigned iOS package containing the Apple Watch app
+          - \`MeloX-iOS-unsigned-${BUNDLED_VERSION}.ipa\`: unsigned iOS package containing the Apple Watch app
 
           ### Installation
 
@@ -374,7 +374,7 @@ jobs:
 
           ### 下载说明
 
-          - \`MeloX-iOS-unsigned.ipa\`：包含 Apple Watch App 的 iOS 未签名安装包
+          - \`MeloX-iOS-unsigned-${BUNDLED_VERSION}.ipa\`：包含 Apple Watch App 的 iOS 未签名安装包
 
           ### 安装说明
 
