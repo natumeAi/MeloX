@@ -1211,6 +1211,7 @@
 "ui.playlists.create_first" = "Create a playlist, then add your song.";
 "ui.playlists.add_to_accessibility" = "Add to %@, %ld songs";
 "ui.playlists.search_prompt" = "Search This Playlist";
+"ui.playlists.searching_all_songs" = "Searching All Songs";
 "ui.playlists.load_complete_failed" = "The complete playlist could not be loaded.";
 "ui.playlists.favorite" = "Favorite Playlist";
 "ui.playlists.metadata" = "%ld Songs · %@ Plays";

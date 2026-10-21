@@ -75,6 +75,7 @@ struct PlaylistDetailContent: View {
                             : L10n.string("ui.playlists.loading"),
                         isLoading: isLoading,
                         failureMessage: failureMessage,
+                        searchQuery: searchQuery,
                         hasMoreTracks: hasMoreTracks,
                         loadedTrackOffset: loadedTrackOffset,
                         isLoadingMoreTracks: isLoadingMoreTracks,
@@ -127,6 +128,7 @@ struct MusicCollectionTrackContent: View {
     let loadingTitle: String
     let isLoading: Bool
     let failureMessage: String?
+    var searchQuery = ""
     var hasMoreTracks = false
     var loadedTrackOffset = 0
     var isLoadingMoreTracks = false
@@ -137,6 +139,8 @@ struct MusicCollectionTrackContent: View {
     var onRemoveSong: ((Song) -> Void)?
 
     var body: some View {
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+
         Group {
             if isLoading {
                 ProgressView(loadingTitle)
@@ -151,19 +155,32 @@ struct MusicCollectionTrackContent: View {
                 .frame(maxWidth: .infinity, minHeight: 220)
             } else {
                 VStack(spacing: 0) {
-                    PlaylistTrackList(
-                        tracks: tracks,
-                        sourceID: sourceID,
-                        showsArtwork: showsArtwork,
-                        onRemoveSong: onRemoveSong,
-                        downloadSelection: downloadSelection
-                    )
+                    if !query.isEmpty && tracks.isEmpty {
+                        if !hasMoreTracks {
+                            ContentUnavailableView.search(text: query)
+                                .foregroundStyle(.primary)
+                                .frame(maxWidth: .infinity, minHeight: 180)
+                        }
+                    } else {
+                        PlaylistTrackList(
+                            tracks: tracks,
+                            sourceID: sourceID,
+                            showsArtwork: showsArtwork,
+                            onRemoveSong: onRemoveSong,
+                            downloadSelection: downloadSelection
+                        )
+                    }
 
                     if hasMoreTracks {
                         MusicCollectionPaginationFooter(
                             isLoading: isLoadingMoreTracks,
                             failureMessage: loadMoreTracksError,
                             loadToken: loadedTrackOffset,
+                            loadingTitle: L10n.string(
+                                query.isEmpty
+                                    ? "ui.common.loading_more_songs"
+                                    : "ui.playlists.searching_all_songs"
+                            ),
                             action: onLoadMore
                         )
                     }

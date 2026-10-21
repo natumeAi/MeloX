@@ -28,12 +28,14 @@ struct PlaylistDetailView: View {
     @State private var loadedTrackOffset = 0
     @State private var isLoadingMoreTracks = false
     @State private var loadMoreTracksError: String?
+    @State private var interruptedTrackLoadCount = 0
     @State private var isPreparingPlayback = false
     @State private var playbackErrorMessage: String?
     @State private var downloadCoordinator =
         MusicCollectionDownloadCoordinator()
 
     private let trackPageSize = 100
+    private let searchTrackChunkSize = 400
 
     init(playlist context: PlaylistRouteContext) {
         let cachedAssets = ArtworkAccentColorProvider.cachedDetailAssets(
@@ -165,6 +167,10 @@ struct PlaylistDetailView: View {
         .task(id: reloadToken) {
             guard playlist == nil else { return }
             await load(waitingForNavigationTransition: true)
+        }
+        .task(id: searchTrackLoadToken) {
+            guard searchTrackLoadToken != nil else { return }
+            await loadMoreTracks()
         }
         .task(id: artworkURL) {
             let transitionDelay = navigationTransitionDelay()
@@ -301,6 +307,20 @@ struct PlaylistDetailView: View {
             return false
         }
         return loadedTrackOffset < playlist.trackIDs.count
+    }
+
+    private var isSearchingTracks: Bool {
+        !searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    /// Keeps search loading without the footer; cancelled loads make no progress, so the
+    /// interrupted count re-triggers the loader instead of letting the search stall.
+    private var searchTrackLoadToken: SearchTrackLoadToken? {
+        guard isSearchingTracks && hasMoreTracks else { return nil }
+        return SearchTrackLoadToken(
+            offset: loadedTrackOffset,
+            interruptedLoadCount: interruptedTrackLoadCount
+        )
     }
 
     private var downloadableSongIDs: [Int] {
@@ -483,7 +503,7 @@ struct PlaylistDetailView: View {
             let page = try await api.songDetailsPage(
                 ids: trackIDs,
                 offset: requestedOffset,
-                limit: trackPageSize
+                limit: isSearchingTracks ? searchTrackChunkSize : trackPageSize
             )
             try Task.checkCancellation()
             guard playlist?.id == currentPlaylist.id,
@@ -501,8 +521,13 @@ struct PlaylistDetailView: View {
             playlist = updatedPlaylist
             loadedTrackOffset = page.nextOffset
         } catch is CancellationError {
+            interruptedTrackLoadCount += 1
             return
         } catch {
+            guard !Task.isCancelled else {
+                interruptedTrackLoadCount += 1
+                return
+            }
             loadMoreTracksError = error.localizedDescription
         }
     }
@@ -550,4 +575,9 @@ struct PlaylistDetailView: View {
             )
         }
     }
+}
+
+private struct SearchTrackLoadToken: Hashable {
+    let offset: Int
+    let interruptedLoadCount: Int
 }

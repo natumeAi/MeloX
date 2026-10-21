@@ -1211,6 +1211,7 @@
 "ui.playlists.create_first" = "新建一个歌单，然后添加歌曲。";
 "ui.playlists.add_to_accessibility" = "添加到%@，%ld 首歌曲";
 "ui.playlists.search_prompt" = "在歌单中搜索";
+"ui.playlists.searching_all_songs" = "正在搜索全部歌曲";
 "ui.playlists.load_complete_failed" = "无法读取完整歌单。";
 "ui.playlists.favorite" = "收藏歌单";
 "ui.playlists.metadata" = "%ld 首歌曲 · %@ 次播放";

@@ -47,6 +47,9 @@ final class LibraryStore {
     private let favoriteSongPageSize = 100
 
     @ObservationIgnored
+    private let favoriteSongSearchChunkSize = 400
+
+    @ObservationIgnored
     private var favoriteSongPageLoadTask: Task<Void, Never>?
 
     @ObservationIgnored
@@ -304,7 +307,7 @@ final class LibraryStore {
         }
     }
 
-    func loadMoreFavoriteSongs() async {
+    func loadMoreFavoriteSongs(limit: Int? = nil) async {
         if let favoriteSongPageLoadTask {
             await favoriteSongPageLoadTask.value
             return
@@ -319,7 +322,8 @@ final class LibraryStore {
             guard let self else { return }
             await self.loadFavoriteSongsPage(
                 ids: requestedIDs,
-                offset: requestedOffset
+                offset: requestedOffset,
+                limit: limit ?? self.favoriteSongPageSize
             )
         }
         favoriteSongPageLoadID = loadID
@@ -336,7 +340,7 @@ final class LibraryStore {
         while hasMoreFavoriteSongs {
             guard !Task.isCancelled else { return }
             let previousOffset = favoriteSongsNextOffset
-            await loadMoreFavoriteSongs()
+            await loadMoreFavoriteSongs(limit: favoriteSongSearchChunkSize)
             guard favoriteSongsNextOffset > previousOffset else { return }
         }
     }
@@ -363,7 +367,8 @@ final class LibraryStore {
 
     private func loadFavoriteSongsPage(
         ids requestedIDs: [Int],
-        offset requestedOffset: Int
+        offset requestedOffset: Int,
+        limit: Int
     ) async {
         isLoadingMoreFavoriteSongs = true
         favoriteSongsLoadMoreError = nil
@@ -373,7 +378,7 @@ final class LibraryStore {
             let page = try await api.songDetailsPage(
                 ids: requestedIDs,
                 offset: requestedOffset,
-                limit: favoriteSongPageSize
+                limit: limit
             )
             try Task.checkCancellation()
             guard favoriteSongIDs == requestedIDs,

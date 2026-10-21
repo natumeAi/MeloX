@@ -51,6 +51,10 @@ enum APIError: LocalizedError {
 @MainActor
 @Observable
 final class NeteaseAPI {
+    private static let songDetailBatchSize = 100
+    // Limit parallel requests to reduce the risk of NetEase rate limiting.
+    private static let maxConcurrentSongDetailRequests = 4
+
     @ObservationIgnored
     private let settings: AppSettings
 
@@ -231,13 +235,32 @@ final class NeteaseAPI {
         )
         let missingIDs = ids.filter { detailsByID[$0] == nil }
 
-        for start in stride(from: 0, to: missingIDs.count, by: 100) {
-            try Task.checkCancellation()
-            let end = min(start + 100, missingIDs.count)
-            for song in try await songDetails(
-                ids: Array(missingIDs[start..<end])
-            ) {
-                detailsByID[song.id] = song
+        var batches = stride(from: 0, to: missingIDs.count, by: Self.songDetailBatchSize)
+            .map { start in
+                let end = min(start + Self.songDetailBatchSize, missingIDs.count)
+                return Array(missingIDs[start..<end])
+            }
+            .makeIterator()
+
+        try Task.checkCancellation()
+        try await withThrowingTaskGroup(of: [Song].self) { group in
+            for _ in 0..<Self.maxConcurrentSongDetailRequests {
+                guard let batch = batches.next() else { break }
+                group.addTask {
+                    try await self.songDetails(ids: batch)
+                }
+            }
+
+            while let songs = try await group.next() {
+                try Task.checkCancellation()
+                for song in songs {
+                    detailsByID[song.id] = song
+                }
+                if let batch = batches.next() {
+                    group.addTask {
+                        try await self.songDetails(ids: batch)
+                    }
+                }
             }
         }
 
@@ -284,7 +307,7 @@ final class NeteaseAPI {
         limit: Int = 100
     ) async throws -> SongCollectionPage {
         let start = min(max(offset, 0), ids.count)
-        let end = min(start + min(max(limit, 1), 100), ids.count)
+        let end = min(start + max(limit, 1), ids.count)
         let pageIDs = Array(ids[start..<end])
         guard !pageIDs.isEmpty else {
             return SongCollectionPage(
@@ -294,13 +317,9 @@ final class NeteaseAPI {
             )
         }
 
-        let details = try await songDetails(ids: pageIDs)
-        var detailsByID: [Int: Song] = [:]
-        for song in details {
-            detailsByID[song.id] = song
-        }
+        let songs = try await songDetailsCollection(ids: pageIDs)
         return SongCollectionPage(
-            songs: pageIDs.compactMap { detailsByID[$0] },
+            songs: songs,
             nextOffset: end,
             totalCount: ids.count
         )

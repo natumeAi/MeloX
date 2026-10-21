@@ -6,11 +6,17 @@
 
 - 增加了可单独开启的灵动岛播放卡片，不显示歌词，点击即可进入播放页
 - 修复了点击灵动岛或锁屏上的 MeloX 卡片后没有进入播放页的问题
+- 修复了歌单内搜索时，还没加载出来的歌曲搜不到的问题
+- 修复了在歌单、专辑等歌曲列表内用多个关键词（如歌手加歌名）或歌曲别名搜索时搜不到歌曲的问题
+- 优化了歌单与收藏歌曲内搜索的速度，以及大歌单播放全部时的准备速度
 
 ### English
 
 - Added an optional Now Playing card for the Dynamic Island and Lock Screen that shows no lyrics and opens the player when tapped
 - Fixed tapping MeloX's Dynamic Island or Lock Screen card not opening the player
+- Fixed in-playlist search missing songs that had not been loaded yet
+- Fixed searches in playlists, albums, and other song lists finding nothing when using several keywords (such as artist and title) or a song's alias
+- Improved search speed in playlists and favorite songs, and preparation speed when playing all songs in large playlists
 
 ## macOS
 
@@ -28,6 +34,7 @@
 - 优化了搜索分类切换，返回已查看的分类时更快
 - 优化了重复提交搜索时的体验
 - 优化了跳转、暂停与重播时的播放进度显示
+- 优化了大歌单播放全部时的准备速度
 
 ### English
 
@@ -43,3 +50,4 @@
 - Improved search category switching so previously viewed results appear faster
 - Improved the experience when submitting the same search repeatedly
 - Improved progress display when seeking, pausing, and replaying songs
+- Improved preparation speed when playing all songs in large playlists

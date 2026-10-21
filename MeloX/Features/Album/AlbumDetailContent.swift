@@ -43,6 +43,7 @@ struct AlbumDetailContent: View {
                         loadingTitle: L10n.string("ui.album.loading"),
                         isLoading: isLoading,
                         failureMessage: failureMessage,
+                        searchQuery: searchQuery,
                         downloadSelection: downloadCoordinator,
                         onRetry: onRetry
                     )

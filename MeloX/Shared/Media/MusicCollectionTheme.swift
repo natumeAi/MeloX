@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 extension ArtworkDetailPalette {
@@ -15,11 +16,23 @@ extension ArtworkDetailPalette {
 }
 
 func filterMusicCollectionTracks(_ tracks: [Song], query: String) -> [Song] {
-    let keywords = query.trimmingCharacters(in: .whitespacesAndNewlines)
-    guard !keywords.isEmpty else { return tracks }
+    let terms = query.split(whereSeparator: \.isWhitespace).map(String.init)
+    guard !terms.isEmpty else { return tracks }
+    let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive, .widthInsensitive]
+
     return tracks.filter { song in
-        song.name.localizedCaseInsensitiveContains(keywords)
-            || song.artistText.localizedCaseInsensitiveContains(keywords)
-            || (song.album?.name.localizedCaseInsensitiveContains(keywords) ?? false)
+        terms.allSatisfy { term in
+            func containsTerm(_ field: String) -> Bool {
+                field.range(of: term, options: options) != nil
+            }
+
+            return containsTerm(song.name)
+                || song.aliases.contains(where: containsTerm)
+                || song.artists.contains { artist in
+                    containsTerm(artist.name)
+                        || artist.aliases.contains(where: containsTerm)
+                }
+                || (song.album.map { containsTerm($0.name) } ?? false)
+        }
     }
 }
