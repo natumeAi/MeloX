@@ -167,10 +167,13 @@ final class AutoMixDeckTransitionController {
     }
 
     func reset() {
-        cancel(wantsPlayback: false)
+        // Clear before cancelling: pausing a loaded deck synchronously
+        // publishes its position, which would carry the previous song's
+        // progress into the next load.
         for deck in decks {
             deck.clear()
         }
+        cancel(wantsPlayback: false)
         activeDeckIndex = 0
         deckGains = [1, 0]
         applyOutputVolumes()
