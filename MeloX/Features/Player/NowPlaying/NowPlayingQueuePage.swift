@@ -11,6 +11,8 @@ struct NowPlayingQueuePage: View {
     let onSongHeaderHiddenChange: (Bool) -> Void
     let onSongHeaderOffsetChange: (CGFloat) -> Void
 
+    private static let modeControlsHeight: CGFloat = 60
+
     @State private var songHeaderHeight: CGFloat = 0
     @State private var isSongHeaderHidden = false
     @State private var isSongHeaderAtRest = true
@@ -36,118 +38,120 @@ struct NowPlayingQueuePage: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            NowPlayingQueueModeControls()
-                .padding(.vertical, 8)
-                .frame(height: isSongHeaderHidden ? 60 : 0)
-                .clipped()
-                .opacity(isSongHeaderHidden ? 1 : 0)
-                .allowsHitTesting(isSongHeaderHidden)
-                .accessibilityHidden(!isSongHeaderHidden)
-
-            List {
-                if presentation == .portrait {
-                    Group {
-                        if showsSongHeader {
-                            NowPlayingSongHeader(
-                                song: song,
-                                artworkNamespace: artworkNamespace,
-                                usesReferenceLayout: true,
-                                usesArtworkTransition:
-                                    usesArtworkTransition
-                                    && isSongHeaderAtRest
+        List {
+            if presentation == .portrait {
+                Group {
+                    if showsSongHeader {
+                        NowPlayingSongHeader(
+                            song: song,
+                            artworkNamespace: artworkNamespace,
+                            usesReferenceLayout: true,
+                            usesArtworkTransition:
+                                usesArtworkTransition
+                                && isSongHeaderAtRest
+                        )
+                    } else {
+                        Color.clear
+                            .frame(
+                                height:
+                                    NowPlayingSongHeader
+                                    .referenceHeight
                             )
-                        } else {
-                            Color.clear
-                                .frame(
-                                    height:
-                                        NowPlayingSongHeader
-                                        .referenceHeight
-                                )
-                        }
                     }
-                    .onGeometryChange(for: CGFloat.self) { geometry in
-                        geometry.size.height
-                    } action: { newHeight in
-                        if newHeight > 0 {
-                            songHeaderHeight = newHeight
-                        }
+                }
+                .onGeometryChange(for: CGFloat.self) { geometry in
+                    geometry.size.height
+                } action: { newHeight in
+                    if newHeight > 0 {
+                        songHeaderHeight = newHeight
                     }
+                }
+                .listRowInsets(.init())
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
+            }
+
+            Section {
+                // Keeps a constant height while the overlay copy takes over.
+                // Resizing anything here from the scroll offset feeds back
+                // into the scroll geometry and makes the list jitter around
+                // the hide threshold.
+                modeControls(isVisible: !isSongHeaderHidden)
                     .listRowInsets(.init())
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
-                }
 
-                Section {
-                    Text("ui.player.continue_playing")
-                        .font(.title2.bold())
-                        .padding(.top, 14)
-                        .padding(.bottom, 10)
-                        .listRowInsets(.init())
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                Text("ui.player.continue_playing")
+                    .font(.title2.bold())
+                    .padding(.top, 14)
+                    .padding(.bottom, 10)
+                    .listRowInsets(.init())
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
 
-                    if upcomingEntries.isEmpty {
-                        ContentUnavailableView(
-                            "ui.player.no_up_next",
-                            systemImage: "list.bullet"
-                        )
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .listRowInsets(
-                            .init(
-                                top: 24,
-                                leading: 0,
-                                bottom: 24,
-                                trailing: 0
-                            )
-                        )
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
-                    } else {
-                        ForEach(upcomingEntries) { entry in
-                            NowPlayingQueueRow(entry: entry)
-                        }
-                        .onMove(perform: moveQueueItems)
-                    }
-                } header: {
-                    NowPlayingQueueModeControls()
-                        .padding(.vertical, 8)
-                        .frame(
-                            height:
-                                isSongHeaderHidden
-                                    ? 0
-                                    : 60
-                        )
-                        .clipped()
-                        .opacity(isSongHeaderHidden ? 0 : 1)
-                        .allowsHitTesting(!isSongHeaderHidden)
-                        .accessibilityHidden(isSongHeaderHidden)
-                        .textCase(nil)
-                        .listRowInsets(.init())
-                }
-            }
-            .listStyle(.plain)
-            .listSectionSpacing(0)
-            .scrollContentBackground(.hidden)
-            .scrollIndicators(.visible)
-            .contentMargins(.top, 0, for: .scrollContent)
-            .environment(\.defaultMinListRowHeight, 1)
-            .environment(\.defaultMinListHeaderHeight, 0)
-            .environment(\.editMode, .constant(.active))
-            .padding(.bottom, bottomContentInset)
-            .onScrollGeometryChange(
-                for: CGFloat.self,
-                of: { geometry in
-                    max(
-                        geometry.contentOffset.y
-                            + geometry.contentInsets.top,
-                        0
+                if upcomingEntries.isEmpty {
+                    ContentUnavailableView(
+                        "ui.player.no_up_next",
+                        systemImage: "list.bullet"
                     )
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .listRowInsets(
+                        .init(
+                            top: 24,
+                            leading: 0,
+                            bottom: 24,
+                            trailing: 0
+                        )
+                    )
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } else {
+                    ForEach(upcomingEntries) { entry in
+                        NowPlayingQueueRow(entry: entry)
+                    }
+                    .onMove(perform: moveQueueItems)
                 }
-            ) { _, offset in
-                updateSongHeaderState(for: offset)
             }
+        }
+        .listStyle(.plain)
+        .listSectionSpacing(0)
+        .scrollContentBackground(.hidden)
+        .scrollIndicators(.visible)
+        .contentMargins(.top, 0, for: .scrollContent)
+        .environment(\.defaultMinListRowHeight, 1)
+        .environment(\.defaultMinListHeaderHeight, 0)
+        .environment(\.editMode, .constant(.active))
+        .padding(.bottom, bottomContentInset)
+        .onScrollGeometryChange(
+            for: CGFloat.self,
+            of: { geometry in
+                max(
+                    geometry.contentOffset.y
+                        + geometry.contentInsets.top,
+                    0
+                )
+            }
+        ) { _, offset in
+            updateSongHeaderState(for: offset)
+        }
+        // Clips rows scrolling under the pinned controls with a mask, so the
+        // list's frame never changes with the scroll offset.
+        .mask(alignment: .top) {
+            VStack(spacing: 0) {
+                Color.clear
+                    .frame(
+                        height:
+                            isSongHeaderHidden
+                                ? Self.modeControlsHeight
+                                : 0
+                    )
+
+                Rectangle()
+            }
+        }
+        .overlay(alignment: .top) {
+            modeControls(isVisible: isSongHeaderHidden)
         }
         .onAppear {
             if presentation == .portrait {
@@ -177,6 +181,15 @@ struct NowPlayingQueuePage: View {
                 song: song
             )
         }
+    }
+
+    private func modeControls(isVisible: Bool) -> some View {
+        NowPlayingQueueModeControls()
+            .padding(.vertical, 8)
+            .frame(height: Self.modeControlsHeight)
+            .opacity(isVisible ? 1 : 0)
+            .allowsHitTesting(isVisible)
+            .accessibilityHidden(!isVisible)
     }
 
     private var bottomContentInset: CGFloat {
